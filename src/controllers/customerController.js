@@ -55,7 +55,7 @@ import { verifyTokenService ,signInService,refreshTokenService} from '../service
 
 export const refreshToken = async (req, res) => {
   try {
-    const currentToken = req.headers.authorization?.split(' ')[1];
+    const currentToken =req.body.token || req.headers.authorization?.split(' ')[1];
     if (!currentToken) {
       return res.status(StatusCodes.UNAUTHORIZED).json(
         customErrorResponse({

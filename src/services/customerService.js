@@ -58,6 +58,7 @@ export const verifyTokenService = async (token) => {
 }
 
 export const refreshTokenService = async (currentToken) => {
+     const refreshTokenUrl = endpoints.REFRESH_TOKEN;
     try {
         if (!currentToken) {
             throw new ClientError(
@@ -67,9 +68,12 @@ export const refreshTokenService = async (currentToken) => {
             );
         }
 
-        const response = await axios.post(endpoints.REFRESH_TOKEN, {
-            currentToken,
-        });
+        const response = await axios.get(refreshTokenUrl, {
+          headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + currentToken,
+          },
+      });
 
         return response.data;
     } catch (error) {
