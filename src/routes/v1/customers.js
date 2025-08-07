@@ -8,7 +8,7 @@ const customersRouter = express.Router();
 
 // customersRouter.post('/signup',validate(userSignupSchema),signUp);
 customersRouter.post('/signin',signIn);
-customersRouter.get("/refresh-token",refreshToken)
-customersRouter.get("/verify-token",verifyMagentoToken,verifyToken)
+customersRouter.get("/refresh-token",verifyMagentoToken,refreshToken)
+customersRouter.post("/verify-token",verifyToken)
 
 export default customersRouter;

@@ -30,6 +30,7 @@ import { verifyTokenService ,signInService,refreshTokenService} from '../service
   }
 
  export async function verifyToken(req, res) {
+  
   try {
     const response = await verifyTokenService(req.body.token);
 
