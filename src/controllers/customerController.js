@@ -1,82 +1,36 @@
-
 import { StatusCodes } from "http-status-codes";
 import {
-    customErrorResponse,
-    internalErrorResponse,
-    successResponse
+    customErrorResponse
   } from '../utils/common/responseObjects.js';
-import { verifyTokenService ,signInService,refreshTokenService} from '../services/customerService.js';
+import { currentCustomerService } from "../services/customerService.js";
 
 
-  export const signIn = async (req, res) => {
-    try {
-      
-       const response = await signInService(req.body);
-      
-      return res
-        .status(StatusCodes.OK)
-        .json(successResponse(response, 'User logged in successfully'));
-    } catch (error) {
-      console.log('User controller error', error);
-  
-      if (error.statusCode) {
-        return res.status(error.statusCode).json(customErrorResponse(error));
-      }
-  
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(internalErrorResponse(error));
-    }
-  }
-
- export async function verifyToken(req, res) {
-  
+  export async function currentCustomer(req, res) {
   try {
-    const response = await verifyTokenService(req.body.token);
-
-    return res.status(200).json(
-      successResponse({
-        message: "Token verified successfully",
-        data: response,
-      })
-    );
-  } catch (error) {
-    console.error("Error in verifyToken:", error);
-
-    if (error.statusCode) {
-      return res.status(error.statusCode).json(customErrorResponse(error));
-    }
-
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(internalErrorResponse(error));
-  }
-}
-
-
-export const refreshToken = async (req, res) => {
-  try {
-    const currentToken =req.body.token || req.headers.authorization?.split(' ')[1];
-    if (!currentToken) {
-      return res.status(StatusCodes.UNAUTHORIZED).json(
+    const {authorization,} =  req.headers
+     if (!authorization) {
+      return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
-          message: "Refresh token is required",
-          err: "Refresh token is required"
+          message: "Token is required ",
         })
       );
     }
-    
-    const response = await refreshTokenService(currentToken);
-    return res
-      .status(StatusCodes.OK)
-      .json(successResponse(response, 'Token refreshed successfully'));
+    const headers = {
+      Authorization: `${authorization}`,
+      "Content-Type": "application/json",
+    };
+ 
+    const response = await currentCustomerService(headers);
+
+    return res.status(200).json(response);
   } catch (error) {
-    console.error('Error in refreshToken:', error);
+    console.error("Error in currentCustomer:", error);
     if (error.statusCode) {
       return res.status(error.statusCode).json(customErrorResponse(error));
     }
+
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(internalErrorResponse(error));
+      .json(error);
   }
 }
