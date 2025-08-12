@@ -115,7 +115,6 @@ export const settlementByContractId = async (contractId, headers) => {
   }
 };
 
-
 export const getMeterReadingService = async (contractId, value,headers) => {
   try {
     if (!headers) {
@@ -142,3 +141,4 @@ export const getMeterReadingService = async (contractId, value,headers) => {
     throw error;
   }
 };
+

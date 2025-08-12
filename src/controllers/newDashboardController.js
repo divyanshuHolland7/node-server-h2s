@@ -1,20 +1,19 @@
-import {StatusCodes} from "http-status-codes"
+import { StatusCodes } from "http-status-codes";
+import { customErrorResponse } from "../utils/common/responseObjects.js";
+
 import {
-    customErrorResponse
-  } from '../utils/common/responseObjects.js'; 
- 
-import { fetchActiveContractsService,
-          getContractByIdService,
-          settlementById,
-        settlementByContractId,
-        fetchContractsService,
-        getMeterReadingService
+  fetchActiveContractsService,
+  getContractByIdService,
+  settlementById,
+  settlementByContractId,
+  fetchContractsService,
+  getMeterReadingService,
 } from "../services/newDashboardService.js";
-   
-  export const fetchActiveContracts = async (req,res) => {
-     try {
-    const {authorization,} =  req.headers
-     if (!authorization) {
+
+export const fetchActiveContracts = async (req, res) => {
+  try {
+    const { authorization } = req.headers;
+    if (!authorization) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
           message: "Token is required ",
@@ -25,25 +24,24 @@ import { fetchActiveContractsService,
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
-  const response = await fetchActiveContractsService(headers)
-   return res.status(200).json(response);
-}
-catch (error) {
+    const response = await fetchActiveContractsService(headers);
+    return res.status(200).json(response);
+  } catch (error) {
     console.error("Error in currentCustomer:", error);
 
     if (error.statusCode) {
       return res.status(error.statusCode).json(customErrorResponse(error));
     }
 
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
-  }
-  export const fetchContracts = async (req,res) => {
-     try {
-    const {authorization,} =  req.headers
-     if (!authorization) {
+};
+
+
+export const fetchContracts = async (req, res) => {
+  try {
+    const { authorization } = req.headers;
+    if (!authorization) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
           message: "Token is required ",
@@ -54,23 +52,22 @@ catch (error) {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
-  const response = await fetchContractsService(headers)
-   return res.status(200).json(response);
-}
-catch (error) {
+    const response = await fetchContractsService(headers);
+    return res.status(200).json(response);
+  } catch (error) {
     console.error("Error in currentCustomer:", error);
 
     if (error.statusCode) {
       return res.status(error.statusCode).json(customErrorResponse(error));
     }
 
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
-  }
+};
 
-  export const getContractById = async (req, res) => {
+
+
+export const getContractById = async (req, res) => {
   try {
     const { authorization } = req.headers;
     if (!authorization) {
@@ -95,8 +92,8 @@ catch (error) {
       "Content-Type": "application/json",
     };
 
-   const response = await getContractByIdService(contractid, headers);
-   
+    const response = await getContractByIdService(contractid, headers);
+
     return res.status(StatusCodes.OK).json(response);
   } catch (error) {
     console.error("Error in getContractById:", error);
@@ -105,11 +102,10 @@ catch (error) {
       return res.status(error.statusCode).json(customErrorResponse(error));
     }
 
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
   }
 };
+
 
 
 export const getSettlementById = async (req, res) => {
@@ -131,12 +127,12 @@ export const getSettlementById = async (req, res) => {
         })
       );
     }
-const headers = {
+    const headers = {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
     // Call the service
-    const token = authorization
+    const token = authorization;
     const response = await settlementById(settlementid, headers);
 
     return res.status(StatusCodes.OK).json(response);
@@ -161,6 +157,8 @@ const headers = {
   }
 };
 
+
+
 export const getSettlementByContractId = async (req, res) => {
   try {
     const { authorization } = req.headers;
@@ -180,12 +178,12 @@ export const getSettlementByContractId = async (req, res) => {
         })
       );
     }
-const headers = {
+    const headers = {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
     // Call the service
-    
+
     const response = await settlementByContractId(contractId, headers);
 
     return res.status(StatusCodes.OK).json(response);
@@ -209,6 +207,8 @@ const headers = {
     });
   }
 };
+
+
 export const getMeterReading = async (req, res) => {
   try {
     const { authorization } = req.headers;
@@ -220,7 +220,7 @@ export const getMeterReading = async (req, res) => {
       );
     }
 
-    const { contractId ,value} = req.params;
+    const { contractId, value } = req.params;
     if (!contractId) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
@@ -228,20 +228,20 @@ export const getMeterReading = async (req, res) => {
         })
       );
     }
-     if (!value) {
+    if (!value) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
-          message: "Contract ID is required",
+          message: "value is required",
         })
       );
     }
-const headers = {
+    const headers = {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
     // Call the service
-    
-    const response = await getMeterReadingService(contractId,value, headers);
+
+    const response = await getMeterReadingService(contractId, value, headers);
 
     return res.status(StatusCodes.OK).json(response);
   } catch (error) {
