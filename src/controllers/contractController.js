@@ -208,6 +208,7 @@ export const appointmentPreCheckout = async (req, res) => {
 export const terminateContract = async (req, res) => {
   try {
     const { authorization } = req.headers;
+    const { contractId } = req.params;
     if (!authorization) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
@@ -219,7 +220,7 @@ export const terminateContract = async (req, res) => {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
-    const { contractId } = req.params;
+    
     if (!contractId) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
