@@ -1,5 +1,4 @@
 import express from "express";
-
 import {
 chatReplyCustomer,
 updateTaskCustomer,
@@ -28,7 +27,7 @@ getAllNotificationCustomer,
 getOrdersCustomer,
 downloadInvoiceCustomer,
 getPreviousTenantTask
-} from "../../controllers/customerController"
+} from "../../controllers/customerController.js"
 
 
 const customerRouter = express.Router();
