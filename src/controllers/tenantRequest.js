@@ -24,7 +24,8 @@ import {
   emailVerificationOtpService,
   verifyEmailOtpService,
   gallaryImageService,
-  setPermissionEnterService
+  setPermissionEnterService,
+  getPreviousChatService
 } from "../services/tenantRequestService.js";
 
 export const addTenantRequest = async (req, res) => {
@@ -935,6 +936,42 @@ export const setPermissionEnter = async (req, res) => {
       "Content-Type": "application/json",
     };
     const response = await setPermissionEnterService(postData,headers);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error in insurance controller:", error);
+
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(customErrorResponse(error));
+    }
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error);
+  }
+}
+
+
+export const getPreviousChat = async (req, res) => {
+  try {
+    const { authorization } = req.headers;
+   const {task_id} =req.params
+    if (!authorization) {
+      return res.status(StatusCodes.BAD_REQUEST).json(
+        customErrorResponse({
+          message: "Token is required ",
+        })
+      );
+    }
+    if (!task_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json(
+        customErrorResponse({
+          message: "task_id is required ",
+        })
+      );
+    }
+    const headers = {
+      Authorization: `${authorization}`,
+      "Content-Type": "application/json",
+    };
+    const response = await getPreviousChatService(task_id,headers);
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error in insurance controller:", error);

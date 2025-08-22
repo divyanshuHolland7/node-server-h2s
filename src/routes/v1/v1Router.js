@@ -45,7 +45,8 @@ inventoryDownload,
 emailVerificationOtp,
 verifyEmailOtp,
 gallaryImage,
-setPermissionEnter
+setPermissionEnter,
+getPreviousChat
 } from "../../controllers/tenantRequest.js"
 
 import { 
@@ -95,5 +96,6 @@ v1Router.post("/email/verify",emailVerificationOtp)
 v1Router.post("/email/verify/confirm",verifyEmailOtp)
 v1Router.get("/image-manager/:sku",gallaryImage)
 v1Router.post("/set-permission-enter",setPermissionEnter)
+v1Router.get("/previoustenant/taskmanager/chat/:task_id",getPreviousChat)
 
 export default v1Router;

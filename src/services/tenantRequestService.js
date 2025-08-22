@@ -39,6 +39,7 @@ export const requestRemoveSecondTenantService = async (headers,postData) => {
   }
 };
 
+
 export const dutchCourseService = async (headers,contract_id,postData) => {
   try {
     if (!headers) {
@@ -449,6 +450,24 @@ export const setPermissionEnterService = async (postData,headers) => {
     return response.data;
   } catch (error) {
     console.error("Error in new setPermissionEnterService:", error);
+    throw error;
+  }
+};
+
+
+export const getPreviousChatService = async (task_id,headers) => {
+  try {
+    if (!headers) {
+      throw new ClientError({
+        message: "Token is required",
+        StatusCode: StatusCodes.NOT_FOUND,
+      });
+    }
+  
+    const response = await axios.get(endpoints.GET_PREVIOUS_CHAT(task_id),{ headers });
+    return response.data;
+  } catch (error) {
+    console.error("Error in new getPreviousChatService:", error);
     throw error;
   }
 };
