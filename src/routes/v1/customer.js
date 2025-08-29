@@ -32,6 +32,7 @@ getPreviousTenantTask
 
 const customerRouter = express.Router();
 
+ customerRouter.get("/taskmanager/me",getAllTasksCustomer);
 customerRouter.get("/:id",CustomerDetailsById);
 customerRouter.get("/notifications/me",getAllNotificationCustomer);
 customerRouter.get("/orders",getOrdersCustomer);
@@ -43,7 +44,6 @@ customerRouter.get("/taskmanager/:task_id",taskByIdCustomer);
 customerRouter.post("/taskmanager/update",updateTaskCustomer);
 customerRouter.post("/taskmanager/new",createTaskCustomer);
 customerRouter.get("/taskmanager/chat/:task_id",getChatCustomer);
-customerRouter.get("/taskmanager/me",getAllTasksCustomer);
 customerRouter.get("/previoustenanttasks/me",getPreviousTenantTask);
 customerRouter.get("/faq/articles",getAllArticlesCustomer);
 customerRouter.get("/faq/categories",getCategoriesCustomer);

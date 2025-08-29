@@ -20,7 +20,9 @@ export const getAllPostsService = async (headers) => {
   }
 };  
 
-export const getAllTenantPostsService = async (headers) => {
+export const getAllTenantPostsService = async (headers, querystring) => {
+  const prefix_url = endpoints.GET_ALL_BLOG_POSTS;
+
   try {
     if (!headers) {
       throw new ClientError({
@@ -28,14 +30,21 @@ export const getAllTenantPostsService = async (headers) => {
         StatusCode: StatusCodes.NOT_FOUND,
       });
     }
-  
-    const response = await axios.get(endpoints.GET_ALL_BLOG_POSTS, { headers });
+
+    // Handle both string and object
+    const qs =
+      typeof querystring === "string"
+        ? querystring
+        : new URLSearchParams(querystring).toString();
+
+    const response = await axios.get(`${prefix_url}?${qs}`, { headers });
     return response.data;
   } catch (error) {
     console.error("Error in new getAllTenantPostsService:", error);
     throw error;
   }
-};  
+};
+ 
 
 export const getCategoryService = async (headers) => {
   try {

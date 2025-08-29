@@ -159,23 +159,26 @@ export const getChatCustomerService = async (task_id, headers) => {
 }
 
 
-export const getAllTasksCustomerService = async (sorttype,fieldName, headers) => {
+export const getAllTasksCustomerService = async (sortType,fieldName, headers) => {
+  console.log(sortType,fieldName,"sortType,fieldName-------")
   try {
+    const sorting= sortType? sortType.toUpperCase(): ""
+    const field= fieldName? fieldName : ""
     if (!headers) {
       throw new ClientError({
         message: "Token is required",
         statusCode: StatusCodes.NOT_FOUND,
       });
     }
-
+      
     const response = await axios.get(
-      endpoints.GET_ALL_TASKS(sorttype,fieldName),
+      endpoints.GET_ALL_TASKS(sorting,field),
       { headers }
     );
 
     return response.data;
   } catch (error) {
-    console.error("Error in getAllTasksCustomerService:", error);
+    // console.error("Error in getAllTasksCustomerService:", error);
     throw error;
   }
 }

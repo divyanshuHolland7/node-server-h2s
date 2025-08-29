@@ -323,9 +323,13 @@ export async function getChatCustomer(req, res) {
 
 
 export async function getAllTasksCustomer(req, res) {
+  console.log("first")
   try {
     const { authorization } = req.headers;
+    
     const { sortType, fieldName } = req.query;
+    console.log("sortType:", sortType);
+    console.log("fieldName:", fieldName);
     if (!authorization) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
@@ -338,7 +342,7 @@ export async function getAllTasksCustomer(req, res) {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
-
+    
     const response = await getAllTasksCustomerService(sortType,fieldName, headers);
 
     return res.status(200).json(response);

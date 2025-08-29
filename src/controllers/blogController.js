@@ -45,6 +45,7 @@ export const getAllPosts = async (req, res) => {
 export const getAllTenantPosts = async (req, res) => {
   try {
     const { authorization } = req.headers;
+    const querystring = req.query? req.query : {};
     if (!authorization) {
       return res.status(StatusCodes.BAD_REQUEST).json(
         customErrorResponse({
@@ -52,11 +53,12 @@ export const getAllTenantPosts = async (req, res) => {
         })
       );
     }
+    
     const headers = {
       Authorization: `${authorization}`,
       "Content-Type": "application/json",
     };
-    const response = await getAllTenantPostsService(headers);
+    const response = await getAllTenantPostsService(headers,querystring);
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error in currentCustomer:", error);
