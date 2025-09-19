@@ -53,6 +53,7 @@ import {
 updateInsurance,
 insuranceById
 } from "../../controllers/insurance.js"
+import { gqlRouter } from "./gql.router.js";
 
 
 const v1Router = express.Router();
@@ -97,5 +98,9 @@ v1Router.post("/email/verify/confirm",verifyEmailOtp)
 v1Router.get("/image-manager/:sku",gallaryImage)
 v1Router.post("/set-permission-enter",setPermissionEnter)
 v1Router.get("/previoustenant/taskmanager/chat/:task_id",getPreviousChat)
+
+
+// graph-ql routes
+v1Router.use("/graph-ql",gqlRouter)
 
 export default v1Router;

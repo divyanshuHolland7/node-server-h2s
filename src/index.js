@@ -1,5 +1,4 @@
 import express from 'express';
-import { StatusCodes } from 'http-status-codes';
 import cors from 'cors';
 
 import connectDB from './config/dbConfig.js';
