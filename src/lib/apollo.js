@@ -1,47 +1,94 @@
 // lib/apollo.js
-import { ApolloClient, InMemoryCache, HttpLink, from } from "@apollo/client/core";
-import { onError } from "@apollo/client/link/error";
-import { setContext } from "@apollo/client/link/context";
-import fetch from "cross-fetch"; // ok on Node 18+ too
+import { ApolloClient, InMemoryCache, HttpLink, ApolloLink, from, Observable } from "@apollo/client";
+import fetch from "cross-fetch";
 
-const MAGENTO_GRAPHQL_URL =  process.env.NEXT_PUBLIC_API_GRAPH;
-const STORE_CODE = "default";
+const MAGENTO_GRAPHQL_URL = process.env.NEXT_PUBLIC_API_GRAPH;
+const DEFAULT_STORE =  "default";
+const DEFAULT_TIMEOUT_MS = 15000;
 
-const authLink = setContext((_, { headers }) => {
-  // Pass through customer token from current request context, if any
-  const token = globalThis.__customerToken || null; // or inject via function arg/closure
-  return {
-    headers: {
-      ...headers,
-      ...(STORE_CODE ? { Store: STORE_CODE } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      "Content-Type": "application/json",
-    },
-  };
-});
+export function makeApolloClient({ customerToken, store, timeoutMs } = {}) {
+  const authLink = new ApolloLink((operation, forward) => {
+    const prev = operation.getContext().headers || {};
+    operation.setContext({
+      headers: {
+        ...prev,
+        Store: store || DEFAULT_STORE,                         // CAPITAL S for Magento
+        ...(customerToken ? { Authorization: `Bearer ${customerToken}` } : {}),
+        "Content-Type": "application/json",
+      },
+    });
+    return forward(operation);
+  });
 
-const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
-  if (graphQLErrors) {
-    for (const e of graphQLErrors) {
-      console.error(`[GraphQL error] op=${operation.operationName}`, e.message, e.path);
+  // 2) Timeout via AbortController (no map)
+  const timeoutLink = new ApolloLink((operation, forward) => {
+    const controller = new AbortController();
+    const ms = timeoutMs ?? DEFAULT_TIMEOUT_MS;
+
+    // set or merge fetchOptions.signal
+    operation.setContext(({ fetchOptions = {} }) => ({
+      fetchOptions: { ...fetchOptions, signal: controller.signal },
+    }));
+
+    let timer = null;
+    if (typeof AbortSignal?.timeout !== "function") {
+      // fallback for older Node: manual timer that aborts
+      timer = setTimeout(() => controller.abort(), ms);
+    } else {
+      // Node 18+: could also do AbortSignal.timeout(ms), but we already have controller
+      timer = setTimeout(() => controller.abort(), ms);
     }
-  }
-  if (networkError) {
-    console.error(`[Network error] op=${operation.operationName}`, networkError);
-  }
-});
 
-const httpLink = new HttpLink({ uri: MAGENTO_GRAPHQL_URL, fetch, fetchOptions: { timeout: 15000 } });
+    return new Observable((observer) => {
+      const sub = forward(operation).subscribe({
+        next: (result) => observer.next(result),
+        error: (err) => observer.error(err),
+        complete: () => observer.complete(),
+      });
 
-export function makeApolloClient() {
+      // teardown
+      return () => {
+        try { clearTimeout(timer); } catch {}
+        try { controller.abort(); } catch {}
+        sub.unsubscribe();
+      };
+    });
+  });
+
+  // 3) Error logger (no onError, no map)
+  const errorLogLink = new ApolloLink((operation, forward) => {
+    return new Observable((observer) => {
+      const sub = forward(operation).subscribe({
+        next: (result) => {
+          if (result?.errors?.length) {
+            for (const err of result.errors) {
+              // keep logs server-side
+              console.error(`[GraphQL error] op=${operation.operationName}`, err.message, err.path);
+            }
+          }
+          observer.next(result);
+        },
+        error: (err) => {
+          console.error(`[Network error] op=${operation.operationName}`, err);
+          observer.error(err);
+        },
+        complete: () => observer.complete(),
+      });
+      return () => sub.unsubscribe();
+    });
+  });
+
+  // 4) HTTP transport
+  const httpLink = new HttpLink({ uri: MAGENTO_GRAPHQL_URL, fetch });
+
   return new ApolloClient({
-    ssrMode: true,                          // important on Node
-    link: from([errorLink, authLink, httpLink]),
+    ssrMode: true,
+    link: from([errorLogLink, timeoutLink, authLink, httpLink]),
     cache: new InMemoryCache(),
     defaultOptions: {
       watchQuery: { fetchPolicy: "no-cache" },
-      query:      { fetchPolicy: "no-cache" },
-      mutate:     { errorPolicy: "all" },
+      query: { fetchPolicy: "no-cache" },
+      mutate: { errorPolicy: "all" },
     },
   });
 }

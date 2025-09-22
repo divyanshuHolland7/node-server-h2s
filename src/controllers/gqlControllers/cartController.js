@@ -2,10 +2,6 @@ import { makeApolloClient } from "../../lib/apollo.js";
 import { CREATE_EMPTY_CART, ADD_CUSTOM_PRICE_PRODUCT_TO_CART,WEBSHOP_PRODUCTS_QUERY } from "../../queries/mutation.js";
 
 
-
-
-
-
 export async function createCart(req, res) {
   try {
     const customerToken = req.headers.authorization?.replace("Bearer ", "") || null;
@@ -64,7 +60,6 @@ export async function addCustomPriceItem(req, res) {
       variables: { cart_id: ensuredCartId, cart_items },
     });
     if (errors?.length) throw new Error(errors.map(e => e.message).join(" | "));
-
     res.json({
       success: true,
       cartId: ensuredCartId,
@@ -78,7 +73,7 @@ export async function addCustomPriceItem(req, res) {
 
 export async function getWebshopProducts(req, res) {
   try {
-    const { filteredData, locale = "nl" } = req.body || {};
+    const { filteredData, locale = "en" } = req.body || {};
 
     // Handle the "skip" case exactly like your React code
     const shouldSkip =
@@ -122,9 +117,7 @@ export async function getWebshopProducts(req, res) {
       throw new Error(errors.map(e => e.message).join(" | "));
     }
 
-    // Good to log the count for quick diagnostics
-    // console.log("webshopProducts count:", data?.webshopProducts?.total_count);
-
+        console.log(data,"----data")
     return res.json({ success: true, data });
   } catch (e) {
     // Surface GraphQL errors clearly to caller
